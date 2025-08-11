@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .collect-icon { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .recognition-icon { background: linear-gradient(135deg, #4834d4, #686de0); }
+        .training-icon { background: linear-gradient(135deg, #00d2d3, #54a0ff); }
+        .management-icon { background: linear-gradient(135deg, #ff9ff3, #f368e0); }
+
+        .card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: #a0a0a0;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #666;
+        }
+
+        .file-input {
+            position: relative;
+        }
+
+        .file-input input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-input-label:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .status-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            color: #a0a0a0;
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .webcam-container {
+            width: 100%;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .webcam-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .webcam-placeholder {
+            text-align: center;
+            color: #666;
+        }
+
+        .webcam-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .face-box {
+            position: absolute;
+            border: 2px solid #00ff00;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .face-label {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: rgba(0, 255, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .unknown-face {
+            border-color: #ff0000;
+        }
+
+        .unknown-face .face-label {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+        .result-display {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .warning { color: #fbbf24; }
+
+        .hidden-canvas {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <header class="header">
+            <h1>Face Recognition System</h1>
+            <p>Face detection and recognition platform</p>
+        </header>
+
+        <div class="main-grid">
+          
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon collect-icon">👤</div>
+                    <div>
+                        <h3>Collect Faces</h3>
+                        <p>Capture and store face data for training</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="personId">Person ID</label>
+                    <input type="text" id="personId" class="input-field" placeholder="Enter unique ID">
+                </div>
+                
+                <div class="input-group">
+                    <label for="personName">Person Name</label>
+                    <input type="text" id="personName" class="input-field" placeholder="Enter person's name">
+                </div>
+                
+                <div class="webcam-container" id="collectWebcam">
+                    <div class="webcam-placeholder">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📷</div>
+                        <div>Click Start Collection to begin</div>
+                    </div>
+                    <div class="webcam-overlay" id="collectOverlay"></div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startCollection()" id="startCollectionBtn">Start Collection</button>
+                    <button class="btn btn-secondary" onclick="stopCollection()" id="stopCollectionBtn" disabled>Stop</button>
+                </div>
+                
+                <div id="collectionStatus" class="result-display">
+                    Ready to collect faces
+                </div>
+            </div>
+
+  
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon recognition-icon">🔍</div>
+                    <div>
+                        <h3>Face Recognition</h3>
+                        <p>Recognize faces from images or webcam</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Recognition Mode</label>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="setMode('image')" id="imageModeBtn">Image</button>
+                        <button class="btn btn-secondary" onclick="setMode('webcam')" id="webcamModeBtn">Webcam</button>
+                    </div>
+                </div>
+                
+                <div id="imageMode" style="display: none;">
+                    <div class="input-group">
+                        <label>Upload Image</label>
+                        <div class="file-input">
+                            <input type="file" id="imageFile" accept="image/*">
+                            <div class="file-input-label">
+                                <div> Choose image file</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="recognizeImage()">Recognize Faces</button>
+                </div>
+                
+                <div id="webcamMode" style="display: none;">
+                    <div class="webcam-container" id="recognitionWebcam">
+                        <div class="webcam-placeholder">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎥</div>
+                            <div>Click Start Recognition to begin</div>
+                        </div>
+                        <div class="webcam-overlay" id="recognitionOverlay"></div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="startRecognition()" id="startRecognitionBtn">Start Recognition</button>
+                        <button class="btn btn-secondary" onclick="stopRecognition()" id="stopRecognitionBtn" disabled>Stop</button>
+                    </div>
+                </div>
+                
+                <div id="recognitionResults" class="result-display">
+                    Recognition results will appear here
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon training-icon">🧠</div>
+                    <div>
+                        <h3>Model Training</h3>
+                        <p>Generate embeddings and train classifiers</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Training Pipeline</label>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="generateEmbeddings()" id="embeddingsBtn">Generate Embeddings</button>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Classifier Type</label>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="trainClassifier('knn')" id="knnBtn">Train KNN</button>
+                        <button class="btn btn-secondary" onclick="trainClassifier('svm')" id="svmBtn">Train SVM</button>
+                    </div>
+                </div>
+                
+                <div id="trainingProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="pulse">Training in progress...</div>
+                </div>
+                
+                <div id="trainingResults" class="result-display">
+                    Training results will appear here
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon management-icon">⚙️</div>
+                    <div>
+                        <h3>Data Management</h3>
+                        <p>Manage datasets and model files</p>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="viewDataset()">View Dataset</button>
+                    <button class="btn btn-secondary" onclick="clearData()">Clear Data</button>
+                    <button class="btn btn-secondary" onclick="exportResults()">Export Results</button>
+                </div>
+                
+                <div id="datasetInfo" class="result-display">
+                    Dataset information will appear here
+                </div>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <h3 style="margin-bottom: 1rem; color: #667eea;">System Status</h3>
+            <div class="status-item">
+                <span class="status-label">Device</span>
+                <span class="status-value" id="deviceStatus">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Trained Identities</span>
+                <span class="status-value" id="identityCount">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Total Images</span>
+                <span class="status-value" id="imageCount">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Active Models</span>
+                <span class="status-value" id="activeModels">None</span>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="hiddenCanvas" class="hidden-canvas"></canvas>
+
+    <script>
+        let currentMode = null;
+        let isCollecting = false;
+        let isRecognizing = false;
+        let collectionStream = null;
+        let recognitionStream = null;
+        let collectionInterval = null;
+        let recognitionInterval = null;
+        let collectionVideo = null;
+        let recognitionVideo = null;
+
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                return { success: false, message: error.message };
+            }
+        }
+
+        async function loadSystemStatus() {
+            const status = await apiCall('/api/system-status');
+            if (status.success !== false) {
+                document.getElementById('deviceStatus').textContent = status.device || 'CPU';
+                document.getElementById('identityCount').textContent = status.identities || 0;
+                document.getElementById('imageCount').textContent = status.total_images || 0;
+                document.getElementById('activeModels').textContent = 
+                    status.active_models && status.active_models.length > 0 
+                        ? status.active_models.join(', ') 
+                        : 'None';
+            }
+        }
+
+        async function startWebcam(videoElement) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 }, 
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    } 
+                });
+                videoElement.srcObject = stream;
+                return stream;
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+                throw error;
+            }
+        }
+
+        function stopWebcam(stream) {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        function captureFrame(video) {
+            const canvas = document.getElementById('hiddenCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            ctx.drawImage(video, 0, 0);
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+
+        async function startCollection() {
+            const personId = document.getElementById('personId').value.trim();
+            const personName = document.getElementById('personName').value.trim();
+            
+            if (!personId || !personName) {
+                showMessage('collectionStatus', 'Please enter both Person ID and Name', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/start-collection', {
+                method: 'POST',
+                body: JSON.stringify({ person_id: personId, person_name: personName })
+            });
+            
+            if (result.success) {
+                try {
+                    collectionVideo = document.createElement('video');
+                    collectionVideo.className = 'webcam-feed';
+                    collectionVideo.autoplay = true;
+                    collectionVideo.muted = true;
+                    
+                    collectionStream = await startWebcam(collectionVideo);
+                    
+                    const webcamContainer = document.getElementById('collectWebcam');
+                    webcamContainer.innerHTML = '';
+                    webcamContainer.appendChild(collectionVideo);
+                    
+                    const overlay = document.createElement('div');
+                    overlay.className = 'webcam-overlay';
+                    overlay.id = 'collectOverlay';
+                    webcamContainer.appendChild(overlay);
+                    
+                    isCollecting = true;
+                    document.getElementById('startCollectionBtn').disabled = true;
+                    document.getElementById('stopCollectionBtn').disabled = false;
+                    
+                    startCollectionProcess();
+                    
+                    showMessage('collectionStatus', 'Collection started! Position your face in front of the camera.', 'success');
+                } catch (error) {
+                    showMessage('collectionStatus', 'Error accessing webcam: ' + error.message, 'error');
+                }
+            } else {
+                showMessage('collectionStatus', result.message, 'error');
+            }
+        }
+
+        function startCollectionProcess() {
+            let lastCaptureTime = 0;
+            
+            collectionInterval = setInterval(async () => {
+                if (!isCollecting || !collectionVideo) return;
+                
+                const currentTime = Date.now();
+                if (currentTime - lastCaptureTime < 500) return; 
+                
+                try {
+                    const imageData = captureFrame(collectionVideo);
+                    const result = await apiCall('/api/save-collected-image', {
+                        method: 'POST',
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    
+                    if (result.success) {
+                        const status = await apiCall('/api/collection-status');
+                        showMessage('collectionStatus', 
+                            `Collecting faces for ${status.person_name}: ${status.count}/${status.target}`, 
+                            'success');
+                        
+                        if (result.face_detected && result.bbox) {
+                            drawFaceBox('collectOverlay', result.bbox, 'Face Detected', false);
+                        }
+                        
+                      
+                        if (status.count >= status.target) {
+                            stopCollection();
+                            showMessage('collectionStatus', 
+                                `Collection completed! Collected ${status.target} images.`, 
+                                'success');
+                        }
+                        
+                        lastCaptureTime = currentTime;
+                    }
+                } catch (error) {
+                    console.error('Collection error:', error);
+                }
+            }, 100);
+        }
+
+        async function stopCollection() {
+            isCollecting = false;
+            document.getElementById('startCollectionBtn').disabled = false;
+            document.getElementById('stopCollectionBtn').disabled = true;
+            
+            if (collectionInterval) {
+                clearInterval(collectionInterval);
+                collectionInterval = null;
+            }
+            
+            if (collectionStream) {
+                stopWebcam(collectionStream);
+                collectionStream = null;
+            }
+            
+            const webcamContainer = document.getElementById('collectWebcam');
+            webcamContainer.innerHTML = `
+                <div class="webcam-placeholder">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📷</div>
+                    <div>Click Start Collection to begin</div>
+                </div>
+                <div class="webcam-overlay" id="collectOverlay"></div>
+            `;
+            
+            loadSystemStatus();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            document.getElementById('imageModeBtn').className = 'btn btn-secondary';
+            document.getElementById('webcamModeBtn').className = 'btn btn-secondary';
+            
+            document.getElementById('imageMode').style.display = 'none';
+            document.getElementById('webcamMode').style.display = 'none';
+            
+            if (mode === 'image') {
+                document.getElementById('imageModeBtn').className = 'btn btn-primary';
+                document.getElementById('imageMode').style.display = 'block';
+            } else if (mode === 'webcam') {
+                document.getElementById('webcamModeBtn').className = 'btn btn-primary';
+                document.getElementById('webcamMode').style.display = 'block';
+            }
+        }
+
+        async function recognizeImage() {
+            const fileInput = document.getElementById('imageFile');
+            if (!fileInput.files[0]) {
+                showMessage('recognitionResults', 'Please select an image file', 'error');
+                return;
+            }
+            
+            showMessage('recognitionResults', 'Processing image...', 'pulse');
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('/api/recognize-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    let message = `Recognition complete!<br>`;
+                    if (result.results.length > 0) {
+                        result.results.forEach(face => {
+                            message += `• ${face.name} (${face.confidence}%)<br>`;
+                        });
+                    } else {
+                        message += 'No faces detected in the image.';
+                    }
+                    showMessage('recognitionResults', message, 'success');
+                } else {
+                    showMessage('recognitionResults', result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('recognitionResults', 'Error processing image: ' + error.message, 'error');
+            }
+        }
+
+        async function startRecognition() {
+            try {
+              
+                recognitionVideo = document.createElement('video');
+                recognitionVideo.className = 'webcam-feed';
+                recognitionVideo.autoplay = true;
+                recognitionVideo.muted = true;
+                
+                recognitionStream = await startWebcam(recognitionVideo);
+                
+                const webcamContainer = document.getElementById('recognitionWebcam');
+                webcamContainer.innerHTML = '';
+                webcamContainer.appendChild(recognitionVideo);
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'webcam-overlay';
+                overlay.id = 'recognitionOverlay';
+                webcamContainer.appendChild(overlay);
+                
+                isRecognizing = true;
+                document.getElementById('startRecognitionBtn').disabled = true;
+                document.getElementById('stopRecognitionBtn').disabled = false;
+                
+                startRecognitionProcess();
+                
+                showMessage('recognitionResults', ' Live recognition active...', 'pulse');
+            } catch (error) {
+                showMessage('recognitionResults', 'Error accessing webcam: ' + error.message, 'error');
+            }
+        }
+
+        function startRecognitionProcess() {
+            let frameCount = 0;
+            
+            recognitionInterval = setInterval(async () => {
+                if (!isRecognizing || !recognitionVideo) return;
+                
+                frameCount++;
+                if (frameCount % 2 !== 0) return;
+                
+                try {
+                    const imageData = captureFrame(recognitionVideo);
+                    const result = await apiCall('/api/recognize-webcam-frame', {
+                        method: 'POST',
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    
+                    if (result.success && result.results) {
+
+                        const overlay = document.getElementById('recognitionOverlay');
+                        overlay.innerHTML = '';
+                        
+                        let recognitionText = '';
+                        result.results.forEach(face => {
+                            const isUnknown = face.name === 'Unknown';
+                            drawFaceBox('recognitionOverlay', face.bbox, 
+                                       `${face.name} (${face.confidence.toFixed(1)}%)`, isUnknown);
+                            recognitionText += `${face.name} (${face.confidence.toFixed(1)}%) `;
+                        });
+                        
+                        if (recognitionText) {
+                            showMessage('recognitionResults', ' ' + recognitionText, 'success');
+                        } else {
+                            showMessage('recognitionResults', ' No faces detected', 'warning');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Recognition error:', error);
+                }
+            }, 125); 
+        }
+
+        async function stopRecognition() {
+            isRecognizing = false;
+            document.getElementById('startRecognitionBtn').disabled = false;
+            document.getElementById('stopRecognitionBtn').disabled = true;
+            
+            if (recognitionInterval) {
+                clearInterval(recognitionInterval);
+                recognitionInterval = null;
+            }
+            
+            if (recognitionStream) {
+                stopWebcam(recognitionStream);
+                recognitionStream = null;
+            }
+            
+          
+            const webcamContainer = document.getElementById('recognitionWebcam');
+            webcamContainer.innerHTML = `
+                <div class="webcam-placeholder">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎥</div>
+                    <div>Click Start Recognition to begin</div>
+                </div>
+                <div class="webcam-overlay" id="recognitionOverlay"></div>
+            `;
+            
+            showMessage('recognitionResults', 'Recognition stopped', 'warning');
+        }
+
+        function drawFaceBox(overlayId, bbox, label, isUnknown = false) {
+            const overlay = document.getElementById(overlayId);
+            const container = overlay.parentElement;
+            
+            const containerRect = container.getBoundingClientRect();
+            const videoRect = container.querySelector('video')?.getBoundingClientRect();
+            
+            if (!videoRect) return;
+            
+            const scaleX = videoRect.width / 640; 
+            const scaleY = videoRect.height / 480; 
+
+            const faceBox = document.createElement('div');
+            faceBox.className = isUnknown ? 'face-box unknown-face' : 'face-box';
+            
+            const left = bbox[0] * scaleX;
+            const top = bbox[1] * scaleY;
+            const width = (bbox[2] - bbox[0]) * scaleX;
+            const height = (bbox[3] - bbox[1]) * scaleY;
+            
+            faceBox.style.left = left + 'px';
+            faceBox.style.top = top + 'px';
+            faceBox.style.width = width + 'px';
+            faceBox.style.height = height + 'px';
+            
+            const labelElement = document.createElement('div');
+            labelElement.className = 'face-label';
+            labelElement.textContent = label;
+            faceBox.appendChild(labelElement);
+            
+            overlay.appendChild(faceBox);
+            
+            if (overlayId === 'recognitionOverlay') {
+                setTimeout(() => {
+                    if (faceBox.parentElement) {
+                        faceBox.remove();
+                    }
+                }, 1000);
+            }
+        }
+
+        async function generateEmbeddings() {
+            showMessage('trainingResults', 'Generating embeddings...', 'pulse');
+            document.getElementById('embeddingsBtn').disabled = true;
+            
+            const result = await apiCall('/api/generate-embeddings', { method: 'POST' });
+            
+            document.getElementById('embeddingsBtn').disabled = false;
+            
+            if (result.success) {
+                showMessage('trainingResults', 'Embeddings generated successfully!', 'success');
+            } else {
+                showMessage('trainingResults', 'Error: ' + result.message, 'error');
+            }
+        }
+
+        async function trainClassifier(type) {
+            const progressDiv = document.getElementById('trainingProgress');
+            const resultsDiv = document.getElementById('trainingResults');
+            const progressFill = document.getElementById('progressFill');
+            const button = document.getElementById(type + 'Btn');
+            
+            button.disabled = true;
+            progressDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 200);
+            
+            const result = await apiCall('/api/train-classifier', {
+                method: 'POST',
+                body: JSON.stringify({ method: type })
+            });
+            
+            button.disabled = false;
+            progressDiv.style.display = 'none';
+            progressFill.style.width = '0%';
+            
+            if (result.success) {
+                showMessage('trainingResults', ` ${type.toUpperCase()} classifier trained successfully!`, 'success');
+                loadSystemStatus();
+            } else {
+                showMessage('trainingResults', 'Error: ' + result.message, 'error');
+            }
+        }
+
+        async function viewDataset() {
+            const result = await apiCall('/api/dataset-info');
+            
+            if (result.identities === 0) {
+                showMessage('datasetInfo', 'No dataset found. Please collect faces first.', 'warning');
+            } else {
+                let message = `<strong>Dataset Overview:</strong><br>`;
+                message += `• ${result.identities} identities registered<br>`;
+                message += `• ${result.total_images} total images<br><br>`;
+                message += `<strong>Folders:</strong><br>`;
+                
+                result.folders.forEach(folder => {
+                    message += `• ${folder.name}: ${folder.images} images<br>`;
+                });
+                
+                showMessage('datasetInfo', message, 'success');
+            }
+        }
+
+        async function clearData() {
+            if (!confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+                return;
+            }
+            
+            showMessage('datasetInfo', 'Clearing data...', 'pulse');
+            
+            const result = await apiCall('/api/clear-data', { method: 'POST' });
+            
+            if (result.success) {
+                showMessage('datasetInfo', 'All data cleared successfully', 'success');
+                loadSystemStatus();
+            } else {
+                showMessage('datasetInfo', 'Error: ' + result.message, 'error');
+            }
+        }
+
+        async function exportResults() {
+            showMessage('datasetInfo', 'Preparing export...', 'pulse');
+            
+            try {
+                const response = await fetch('/api/export-results', { method: 'POST' });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'face_recognition_results.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showMessage('datasetInfo', 'Results exported successfully', 'success');
+                } else {
+                    showMessage('datasetInfo', 'Error exporting results', 'error');
+                }
+            } catch (error) {
+                showMessage('datasetInfo', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        function showMessage(elementId, message, type = '') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `result-display ${type}`;
+        }
+
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const label = this.parentElement.querySelector('.file-input-label div');
+            if (this.files[0]) {
+                label.textContent = `📷 ${this.files[0].name}`;
+            } else {
+                label.textContent = '📁 Choose image file';
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (collectionStream) stopWebcam(collectionStream);
+            if (recognitionStream) stopWebcam(recognitionStream);
+        });
+
+        createParticles();
+        loadSystemStatus();
+        
+        setInterval(loadSystemStatus, 30000);
+    </script>
+</body>
+</html>
