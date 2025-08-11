@@ -1,0 +1,9 @@
+data/
+extras/
+inference/
+ssl/
+trained_model/
+uploads/
+face_env/
+
+abhijay.jpg
