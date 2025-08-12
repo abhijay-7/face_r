@@ -490,14 +490,12 @@ if __name__ == '__main__':
     print("=" * 50)
     
     import threading
-    
-    # run servers in separate threads
+
     http_thread = threading.Thread(target=run_http_server, daemon=True)
     http_thread.start()
     
     time.sleep(1)
     
-    # Start HTTPS server in the main thread
     try:
         run_https_server()
     except KeyboardInterrupt:
